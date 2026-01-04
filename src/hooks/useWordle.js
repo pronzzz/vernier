@@ -136,6 +136,8 @@ const useWordle = (solution) => {
 
     // Save to local storage whenever state changes
     useEffect(() => {
+        if (!solution) return
+
         localStorage.setItem('firewordle_state', JSON.stringify({
             solution,
             turn,

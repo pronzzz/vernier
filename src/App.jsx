@@ -64,7 +64,6 @@ function Game() {
   // Reload game
   const resetGame = () => {
     localStorage.removeItem('firewordle_state')
-    setSolution(null)
     window.location.reload()
   }
 
