@@ -79,10 +79,7 @@ function Game() {
   // Reload game
   const resetGame = () => {
     localStorage.removeItem('firewordle_state')
-    setSolution(null) // trigger re-pick
-    const random = SOLUTIONS[Math.floor(Math.random() * SOLUTIONS.length)]
-    setSolution(random)
-    window.location.reload() // simple reload for now cleaning state
+    window.location.reload()
   }
 
   if (!solution) return null
