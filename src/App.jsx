@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from 'react'
 import { ThemeProvider } from './context/ThemeContext'
 import useWordle from './hooks/useWordle'
+import useStats from './hooks/useStats'
 import Header from './components/Header'
 import Grid from './components/Grid'
 import Keyboard from './components/Keyboard'
 import Modal from './components/Modal'
-import { WORDS } from './data/words'
+import SOLUTIONS from './data/solutions.json'
 
 function Game() {
   const [solution, setSolution] = useState(null)
   const [showModal, setShowModal] = useState(false)
+  const { stats, logWin, logLoss } = useStats()
 
   // Pick a random word on mount or load from storage
   useEffect(() => {
@@ -17,12 +19,22 @@ function Game() {
     if (savedState && savedState.solution) {
       setSolution(savedState.solution)
     } else {
-      const random = WORDS[Math.floor(Math.random() * WORDS.length)]
+      const random = SOLUTIONS[Math.floor(Math.random() * SOLUTIONS.length)]
       setSolution(random)
     }
   }, [])
 
-  const { currentGuess, guesses, turn, isCorrect, usedKeys, handleKeyup } = useWordle(solution)
+  const handleGameEnd = (isWin) => {
+    if (isWin) {
+      logWin()
+      setTimeout(() => setShowModal(true), 2000)
+    } else {
+      logLoss()
+      setTimeout(() => setShowModal(true), 2000)
+    }
+  }
+
+  const { currentGuess, guesses, turn, isCorrect, usedKeys, handleKeyup, isInvalid } = useWordle(solution, handleGameEnd)
 
   // Handle Physical Keyboard
   useEffect(() => {
@@ -30,7 +42,9 @@ function Game() {
       handleKeyup({ key: e.key })
     }
 
-    window.addEventListener('keyup', handleWindowKeyup)
+    if (solution) {
+      window.addEventListener('keyup', handleWindowKeyup)
+    }
 
     // Stop listening if game is over
     if (isCorrect || turn > 5) {
@@ -38,50 +52,54 @@ function Game() {
     }
 
     return () => window.removeEventListener('keyup', handleWindowKeyup)
-  }, [handleKeyup, isCorrect, turn])
+  }, [handleKeyup, isCorrect, turn, solution])
 
-  // Show modal when game ends
+  // NOTE: showModal logic moved to handleGameEnd callback to avoid double triggers/renders
+  // But we need to keep the "turn > 5" check if user refreshes on a finished game?
+  // Current implementation of useWordle saves isCorrect/turn.
+  // We can just rely on the modal state? 
+  // For V2 let's rely on handleGameEnd call.
+  // HOWEVER, on refresh, if game is over, we might want to show modal?
+  // Let's add a check on mount/update:
   useEffect(() => {
-    if (isCorrect) {
-      setTimeout(() => setShowModal(true), 2000)
+    if (solution && (isCorrect || turn > 5)) {
+      // If we reload and game is done, show modal immediately (or after delay)
+      // But avoid re-logging stats.
+      // Since stats are only logged on transition, we are safe.
+      setShowModal(true)
     }
-    if (turn > 5) {
-      setTimeout(() => setShowModal(true), 2000)
-    }
-  }, [isCorrect, turn])
+  }, [isCorrect, turn, solution])
+
 
   // Handle Virtual Keyboard
   const handleVirtualKey = (key) => {
-    // Mimic the event object 
-    // If user clicks Enter on virtual keyboard, we pass 'Enter'
-    // If user clicks Del, Keyboard component already converts it to 'Backspace'
-    // but let's just make sure.
-    // In Keyboard.jsx: if (key === 'Del') onKey('Backspace') else onKey(key)
-    // So 'key' here is already 'Backspace' or a letter or 'Enter'.
     handleKeyup({ key })
   }
 
   // Reload game
   const resetGame = () => {
     localStorage.removeItem('firewordle_state')
-    window.location.reload()
+    setSolution(null) // trigger re-pick
+    const random = SOLUTIONS[Math.floor(Math.random() * SOLUTIONS.length)]
+    setSolution(random)
+    window.location.reload() // simple reload for now cleaning state
   }
 
   if (!solution) return null
 
   return (
     <div className="flex flex-col h-screen max-w-lg mx-auto bg-gray-50 dark:bg-gray-900 overflow-hidden">
-      <Header />
+      <Header stats={stats} />
 
       <div className="flex-grow flex flex-col justify-between p-2">
         <div className="flex-grow flex items-center justify-center">
-          <Grid currentGuess={currentGuess} guesses={guesses} turn={turn} />
+          <Grid currentGuess={currentGuess} guesses={guesses} turn={turn} isInvalid={isInvalid} />
         </div>
 
         <Keyboard usedKeys={usedKeys} onKey={handleVirtualKey} />
       </div>
 
-      {showModal && <Modal isCorrect={isCorrect} turn={turn} solution={solution} close={resetGame} />}
+      {showModal && <Modal isCorrect={isCorrect} turn={turn} solution={solution} close={resetGame} stats={stats} />}
     </div>
   )
 }

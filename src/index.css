@@ -7,3 +7,14 @@
     @apply bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-50 font-sans antialiased;
   }
 }
+
+/* Custom Shake Animation */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-5px); }
+  40%, 80% { transform: translateX(5px); }
+}
+
+.animate-shake {
+  animation: shake 0.4s ease-in-out;
+}

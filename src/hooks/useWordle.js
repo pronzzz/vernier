@@ -1,12 +1,19 @@
 import { useState, useEffect } from 'react'
+import VALID_GUESSES from '../data/validGuesses.json'
+import SOLUTIONS from '../data/solutions.json'
 
-const useWordle = (solution) => {
+// Dictionary check helper
+// We combine valid guesses and solutions to ensure the solution is always valid
+const DICTIONARY = new Set([...VALID_GUESSES, ...SOLUTIONS])
+
+const useWordle = (solution, handleGameEnd) => {
     const [turn, setTurn] = useState(0)
     const [currentGuess, setCurrentGuess] = useState('')
     const [guesses, setGuesses] = useState([...Array(6)]) // each guess is an array of formatted letters
     const [history, setHistory] = useState([]) // each guess is a string
     const [isCorrect, setIsCorrect] = useState(false)
     const [usedKeys, setUsedKeys] = useState({}) // {a: 'green', b: 'yellow', c: 'grey'}
+    const [isInvalid, setIsInvalid] = useState(false) // Trigger for invalid animation
 
     // format a guess into an array of letter objects 
     // e.g. [{key: 'a', color: 'yellow'}]
@@ -41,6 +48,7 @@ const useWordle = (solution) => {
     const addNewGuess = (formattedGuess) => {
         if (currentGuess === solution) {
             setIsCorrect(true)
+            handleGameEnd(true)
         }
         setGuesses((prevGuesses) => {
             let newGuesses = [...prevGuesses]
@@ -51,7 +59,11 @@ const useWordle = (solution) => {
             return [...prevHistory, currentGuess]
         })
         setTurn((prevTurn) => {
-            return prevTurn + 1
+            const newTurn = prevTurn + 1
+            if (newTurn > 5 && currentGuess !== solution) {
+                handleGameEnd(false)
+            }
+            return newTurn
         })
         setUsedKeys((prevUsedKeys) => {
             let newKeys = { ...prevUsedKeys }
@@ -81,6 +93,9 @@ const useWordle = (solution) => {
     // handle keyup event & track current guess
     // if user presses enter, add the new guess
     const handleKeyup = ({ key }) => {
+        // Reset invalid shake on any key press
+        setIsInvalid(false)
+
         if (key === 'Enter') {
             // only add guess if turn is less than 5
             if (turn > 5) {
@@ -89,14 +104,21 @@ const useWordle = (solution) => {
             }
             // do not allow duplicate words
             if (history.includes(currentGuess)) {
-                // console.log('you already tried that word')
+                setIsInvalid(true)
                 return
             }
             // check word is 5 chars long
             if (currentGuess.length !== 5) {
-                // console.log('word must be 5 chars long')
+                setIsInvalid(true)
                 return
             }
+            // CHECK DICTIONARY
+            if (!DICTIONARY.has(currentGuess)) {
+                setIsInvalid(true)
+                console.log('Not in word list')
+                return
+            }
+
             const formatted = formatGuess()
             addNewGuess(formatted)
         }
@@ -119,11 +141,7 @@ const useWordle = (solution) => {
     useEffect(() => {
         const saved = JSON.parse(localStorage.getItem('firewordle_state'))
         if (saved) {
-            // Check if the solution matches (if we want to ensure consistency) - simplified for now
-            // Actually we just load the state. 
-            // NOTE: If solution changed in App but we load old guesses, it's bad.
-            // So we will assume App handles clearing state if solution changes (e.g. new game)
-            // OR we check if saved.solution === solution
+            // simplified check
             if (saved.solution === solution) {
                 setTurn(saved.turn)
                 setGuesses(saved.guesses)
@@ -148,7 +166,7 @@ const useWordle = (solution) => {
         }))
     }, [turn, guesses, history, isCorrect, usedKeys, solution])
 
-    return { turn, currentGuess, guesses, isCorrect, usedKeys, handleKeyup }
+    return { turn, currentGuess, guesses, isCorrect, usedKeys, handleKeyup, isInvalid }
 }
 
 export default useWordle

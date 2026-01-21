@@ -1,7 +1,7 @@
 import React from 'react'
 import Tile from './Tile'
 
-export default function Row({ guess, currentGuess }) {
+export default function Row({ guess, currentGuess, isInvalid }) {
 
     if (guess) {
         return (
@@ -17,7 +17,7 @@ export default function Row({ guess, currentGuess }) {
         let letters = currentGuess.split('')
 
         return (
-            <div className="flex justify-center gap-1 mb-1">
+            <div className={`flex justify-center gap-1 mb-1 ${isInvalid ? 'animate-shake' : ''}`}>
                 {letters.map((letter, i) => (
                     <Tile key={i} letter={letter} />
                 ))}
