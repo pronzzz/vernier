@@ -59,12 +59,13 @@ const useWordle = (solution, handleGameEnd) => {
             return [...prevHistory, currentGuess]
         })
         setTurn((prevTurn) => {
-            const newTurn = prevTurn + 1
-            if (newTurn > 5 && currentGuess !== solution) {
-                handleGameEnd(false)
-            }
-            return newTurn
+            return prevTurn + 1
         })
+
+        // Check if game lost
+        if (currentGuess !== solution && turn >= 5) {
+            handleGameEnd(false)
+        }
         setUsedKeys((prevUsedKeys) => {
             let newKeys = { ...prevUsedKeys }
 
