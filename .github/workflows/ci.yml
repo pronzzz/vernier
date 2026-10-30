@@ -36,7 +36,7 @@ jobs:
         run: |
           printf '%s' "$SERVICE_ACCOUNT" > "$RUNNER_TEMP/sa.json"
           echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/sa.json" >> "$GITHUB_ENV"
-      - name: Make sure the vernier site exists
-        run: npx -y firebase-tools@15 hosting:sites:get vernier --project firewordle || npx -y firebase-tools@15 hosting:sites:create vernier --project firewordle
-      - name: Deploy (vernier.web.app + redirect from firewordle.web.app)
+      - name: Make sure the playvernier site exists
+        run: npx -y firebase-tools@15 hosting:sites:get playvernier --project firewordle || npx -y firebase-tools@15 hosting:sites:create playvernier --project firewordle
+      - name: Deploy (playvernier.web.app + redirect from firewordle.web.app)
         run: npx -y firebase-tools@15 deploy --only hosting --project firewordle --non-interactive

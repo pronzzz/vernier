@@ -7,7 +7,7 @@
 **A daily word game of bounds.**
 Five letters, six guesses, and every guess tells you which way each letter lies in the alphabet.
 
-[**Play on Firebase**](https://vernier.web.app) · [**Play on Vercel**](https://playvernier.vercel.app)
+[**Play on Firebase**](https://playvernier.web.app) · [**Play on Vercel**](https://playvernier.vercel.app)
 
 </div>
 
@@ -100,7 +100,7 @@ npm run screenshots  # README screenshots; run `npm run preview -- --port 4191` 
 Both hosts build from `main`:
 
 - **Vercel** builds the project on every push through its GitHub integration (`vercel.json`).
-- **Firebase Hosting** is deployed by the `CI` workflow after the checks pass. It ships `dist/` to the `vernier` site and turns the old `firewordle` site into a 301 redirect (`firebase.json`, `.firebaserc`).
+- **Firebase Hosting** is deployed by the `CI` workflow after the checks pass. It ships `dist/` to the `playvernier` site and turns the old `firewordle` site into a 301 redirect (`firebase.json`, `.firebaserc`).
 
 ## History
 
