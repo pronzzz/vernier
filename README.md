@@ -1,89 +1,111 @@
-# FireWordle 🔥
+<div align="center">
 
-![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
-![Vite](https://img.shields.io/badge/vite-%23646CFF.svg?style=for-the-badge&logo=vite&logoColor=white)
-![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)
-![Firebase](https://img.shields.io/badge/firebase-%23039BE5.svg?style=for-the-badge&logo=firebase)
+<img src="public/icon-192.png" width="72" alt="" />
 
-A modern, responsive, and performant clone of the popular game "Wordle", built with the Firebase ecosystem in mind. FireWordle features a clean UI, smooth animations, and persistent game state.
+# Vernier
 
-## ✨ Features
+**A daily word game of bounds.**
+Five letters, six guesses, and every guess tells you which way each letter lies in the alphabet.
 
--   **Classic Gameplay**: Guess the 5-letter word in 6 tries.
--   **Rich Feedback**: Green (Correct), Yellow (Wrong Spot), Gray (Not in word) color cues.
--   **Responsive Design**: Fully playable on Desktop and Mobile devices.
--   **Dark Mode**: Sleek dark theme that persists according to user preference.
--   **Animations**: Polished "Shake" on invalid words and "Flip" reveals.
--   **Persistence**: Game state is saved to `localStorage`, so you never lose progress on refresh.
--   **Virtual Keyboard**: Interactive on-screen keyboard that tracks used letters.
+[**Play on Firebase**](https://vernier.web.app) · [**Play on Vercel**](https://playvernier.vercel.app)
 
-## 🛠️ Tech Stack
+</div>
 
--   **Frontend**: React (v18) + Vite
--   **Styling**: Tailwind CSS (Utility-first framework)
--   **Icons**: Phosphor Icons
--   **State Management**: React Hooks (`useState`, `useEffect`, Custom Hooks)
--   **Hosting**: Firebase Hosting (SPA configuration)
--   **CI/CD**: GitHub Actions for automated deployment
+![Vernier on desktop, mid-game, in the light theme](docs/desktop-light.png)
 
-## 🚀 Getting Started
+## How it plays
 
-### Prerequisites
+Find the hidden five-letter word. After each guess, every tile points toward its hidden letter:
 
--   Node.js (v16 or higher)
--   npm (v7 or higher)
+| Tile | Meaning |
+| --- | --- |
+| **Blue** | Exact. Right letter, right place. |
+| **‹ R** | The hidden letter comes **earlier** in the alphabet (somewhere from A to Q). |
+| **N ›** | The hidden letter comes **later** in the alphabet (somewhere from O to Z). |
 
-### Installation
+You aren't hunting for which letters are in the word. You are closing in on each of the five slots at once, like a caliper. Two things help:
 
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/pronzzz/firewordle.git
-    cd firewordle
-    ```
+- **The scale.** Under the board, one ruler per slot shows the range that letter can still be. The band shrinks after every guess, and a needle shows where the letter you're typing sits. It turns orange when that letter is already ruled out.
+- **The keyboard.** It's laid out A to Z, and it dims letters that no longer fit the slot you're typing.
 
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    ```
+**Daily** gives everyone the same word, which changes at local midnight, and tracks your streak and guess distribution. **Practice** is unlimited. **Strict** mode makes every guess fit the known ranges. Results share as a spoiler-free grid:
 
-3.  **Run the development server:**
-    ```bash
-    npm run dev
-    ```
-    Open [http://localhost:5173](http://localhost:5173) to view it in your browser.
-
-4.  **Build for production:**
-    ```bash
-    npm run build
-    ```
-
-## 📂 Project Structure
-
-```text
-/
-├── public/              # Static assets
-├── src/
-│   ├── components/      # UI Components (Grid, Row, Keyboard, Modal)
-│   ├── context/         # React Context (ThemeContext)
-│   ├── data/            # Word lists and static data
-│   ├── hooks/           # Custom Hooks (useWordle core logic)
-│   ├── App.jsx          # Main Application Component
-│   ├── main.jsx         # Entry point
-│   └── index.css        # Tailwind imports & global styles
-├── .github/             # GitHub Actions workflows
-├── firebase.json        # Firebase Hosting configuration
-└── vite.config.js       # Vite configuration
+```
+Vernier No. 1 3/6
+▸◂▸◂▸
+▸◂◂◂▸
+■■■■■
 ```
 
-## 🧩 Architecture
+<p align="center">
+  <img src="docs/mobile-dark.png" width="24%" alt="Mid-game on a phone in the dark theme" />
+  <img src="docs/mobile-won.png" width="24%" alt="A solved puzzle" />
+  <img src="docs/mobile-help.png" width="24%" alt="How to play sheet" />
+  <img src="docs/mobile-stats.png" width="24%" alt="Statistics sheet" />
+</p>
 
-The application relies heavily on the **`useWordle`** custom hook, which manages the entire game state:
--   `turn`: Current guess number (0-5).
--   `currentGuess`: The string currently being typed.
--   `guesses`: Array of formatted guesses (objects with letter and color).
--   `isCorrect`: Boolean flag for win condition.
--   `usedKeys`: Dictionary tracking the color status of each keyboard key.
+## Design
 
-## 📄 License
+The look is drafting paper and one strong ink: International Klein Blue on warm off-white, with a near-black night theme. Type is Newsreader (italic wordmark and headings), Geist for the interface, and Geist Mono for tiles, rulers and numbers. The layout is a single centered column with lots of empty space.
 
-This project is open source and available under the [MIT License](LICENSE).
+Palette ([open in Coolors](https://coolors.co/f2efe6-faf8f2-d8d2c1-85816f-16181d-002fa7)):
+
+| Paper | Surface | Rule | Mute | Ink | Klein blue |
+| --- | --- | --- | --- | --- | --- |
+| `#F2EFE6` | `#FAF8F2` | `#D8D2C1` | `#85816F` | `#16181D` | `#002FA7` |
+
+Where the ideas came from. Each effect was rewritten as a few lines of dependency-free code, not installed as a package:
+
+| Source | Used for |
+| --- | --- |
+| [Coolors](https://coolors.co) | The six-colour palette above. |
+| [Animista](https://animista.net) | Keyframes adapted from `flip-in-hor`, `shake-horizontal`, `scale-in-center`, `bounce-top`, `slide-in-bottom`, `puff-in` and `text-focus-in`. |
+| [React Bits](https://reactbits.dev) | `ClickSpark` became the win burst, `DecryptedText` the wordmark and answer reveal, `Counter` the rolling stats digits, `Noise` the static film grain. |
+| [Uiverse](https://uiverse.io/elements) | The springy switch and the segmented control with a sliding thumb. |
+| [21st.dev](https://21st.dev/community/components) | The sheet pattern: a bottom sheet on phones and a centered dialog on desktop, built on native `<dialog>`. |
+| [Design Spells](https://www.designspells.com) | Small moments: the keyboard rescoping to the active slot, the sliding needle, the circular theme reveal (View Transitions API), the blinking caret, a short vibration on a rejected guess. |
+| [minimal.gallery](https://minimal.gallery), [Awwwards](https://www.awwwards.com), [Landing Love](https://www.landing.love) | Reference for the restraint: one column, mono corner captions on large screens, typography first. |
+
+## Built with
+
+- [Preact](https://preactjs.com) + TypeScript, bundled by [Vite](https://vite.dev). No UI or animation libraries. The styles are one hand-written CSS file with design tokens.
+- About **23 KB** of JavaScript (gzipped) for the first paint. The 15k-word guess dictionary loads as a separate chunk right after.
+- Fonts are self-hosted through Fontsource, so there are no third-party requests.
+- Offline play and installability through a small service worker and a web manifest.
+- Accessibility: a live region reads out each guess, `prefers-reduced-motion` is respected, and dialogs come with focus handling and Escape.
+
+```
+src/
+├── game/          Pure rules and data: scoring, ranges, daily seed, storage
+├── components/    Board, Scale, Keyboard, Game, Sheets, effects, icons
+├── styles/app.css Tokens, light/dark themes, keyframes
+└── words/         Answer list (3,154) and allowed guesses (14,855)
+tests/             Vitest specs for the rules, daily seed and streaks
+scripts/           Renders the icons and social card, and the README screenshots
+legacy/            Redirect from the old firewordle.web.app
+```
+
+## Develop
+
+```bash
+npm install
+npm run dev        # http://localhost:5173
+npm run check      # typecheck + tests + production build
+npm run assets     # re-render icons and og.png (needs Chrome)
+npm run screenshots  # README screenshots; run `npm run preview -- --port 4191` first
+```
+
+## Deploy
+
+Both hosts build from `main`:
+
+- **Vercel** builds the project on every push through its GitHub integration (`vercel.json`).
+- **Firebase Hosting** is deployed by the `CI` workflow after the checks pass. It ships `dist/` to the `vernier` site and turns the old `firewordle` site into a 301 redirect (`firebase.json`, `.firebaserc`).
+
+## History
+
+Vernier began as **FireWordle**, a Wordle clone. Version 2 replaces the game itself: new rules, a new name and identity, and a rebuilt codebase. The old URL now redirects here.
+
+## License
+
+[MIT](LICENSE) © Pranav Dwivedi

@@ -1,5 +1,13 @@
 {
   "projects": {
     "default": "firewordle"
+  },
+  "targets": {
+    "firewordle": {
+      "hosting": {
+        "app": ["vernier"],
+        "legacy": ["firewordle"]
+      }
+    }
   }
 }
